@@ -23,3 +23,7 @@
 .Button:focus {
   background-color: #303f9f;
 }
+
+.Button-wrapper {
+  text-align: center;
+}

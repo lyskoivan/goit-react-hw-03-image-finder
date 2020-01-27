@@ -9,7 +9,7 @@ const ImageGallery = ({ images }) => {
   return (
     <ul className={styles.ImageGallery}>
       {images.map(image => {
-        return <ImageGalleryItem key={image.id} />;
+        return <ImageGalleryItem key={image.id} src={image.webformatURL} />;
       })}
     </ul>
   );

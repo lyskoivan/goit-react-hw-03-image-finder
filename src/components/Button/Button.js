@@ -5,9 +5,11 @@ import styles from './Button.module.css';
 
 const Button = ({ onClick }) => {
   return (
-    <button onClick={onClick} type="button" className={styles.Button}>
-      Load More
-    </button>
+    <div className={styles['Button-wrapper']}>
+      <button onClick={onClick} type="button" className={styles.Button}>
+        Load More
+      </button>
+    </div>
   );
 };
 

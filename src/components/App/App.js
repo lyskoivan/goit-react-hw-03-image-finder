@@ -6,6 +6,8 @@ import Searchbar from '../Searchbar/Searchbar';
 import ImageGallery from '../ImageGallery/ImageGallery';
 import Button from '../Button/Button';
 
+import styles from './App.module.css';
+
 class App extends Component {
   state = {
     images: [],
@@ -57,7 +59,7 @@ class App extends Component {
   render() {
     const { images } = this.state;
     return (
-      <div>
+      <div className={styles.App}>
         <Searchbar onGetImages={this.handleGetImages} />
         {images.length > 0 && <ImageGallery images={images} />}
         {images.length > 0 && <Button onClick={this.handleNextPage} />}

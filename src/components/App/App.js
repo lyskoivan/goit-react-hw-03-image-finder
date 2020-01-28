@@ -5,6 +5,7 @@ import imagesAPI from '../services/api';
 import Searchbar from '../Searchbar/Searchbar';
 import ImageGallery from '../ImageGallery/ImageGallery';
 import Button from '../Button/Button';
+import Modal from '../Modal/Modal';
 
 import styles from './App.module.css';
 
@@ -13,21 +14,35 @@ class App extends Component {
     images: [],
     page: 1,
     query: '',
+    isLoading: false,
+    isImageModalOpen: false,
+    modalImageSrc: '',
   };
 
   getImages = (query, page) => {
-    imagesAPI.getImagesByQuery(query, page).then(data => {
-      if (data.hits.length < 0) {
-        console.log('Nothing Finde');
-        return;
-      }
-      console.log('getImages: ', page);
-      this.setState(prevState => {
-        return {
-          images: [...prevState.images, ...data.hits],
-        };
+    imagesAPI
+      .getImagesByQuery(query, page)
+      .then(data => {
+        if (data.hits.length < 0) {
+          return;
+        }
+        this.setState(prevState => {
+          return {
+            images: [...prevState.images, ...data.hits],
+          };
+        });
+      })
+      .catch(error => {
+        throw new Error(error);
+      })
+      .finally(() => {
+        this.setState({ isLoading: false });
+
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth',
+        });
       });
-    });
   };
 
   handleGetImages = async query => {
@@ -35,6 +50,7 @@ class App extends Component {
       images: [],
       page: 1,
       query,
+      isLoading: true,
     });
 
     const { page } = this.state;
@@ -47,22 +63,37 @@ class App extends Component {
     await this.setState(prevState => {
       return {
         page: prevState.page + 1,
+        isLoading: true,
       };
     });
 
     const { query, page } = this.state;
-    console.log('handleNextPage: ', page);
 
     this.getImages(query, page);
   };
 
+  handleImageClick = src => {
+    this.setState({ modalImageSrc: src, isImageModalOpen: true });
+  };
+
+  handleCloseImageModal = () => {
+    this.setState({ isImageModalOpen: false });
+  };
+
   render() {
-    const { images } = this.state;
+    const { images, isLoading, isImageModalOpen, modalImageSrc } = this.state;
     return (
       <div className={styles.App}>
         <Searchbar onGetImages={this.handleGetImages} />
-        {images.length > 0 && <ImageGallery images={images} />}
-        {images.length > 0 && <Button onClick={this.handleNextPage} />}
+        {images.length > 0 && (
+          <ImageGallery images={images} onClick={this.handleImageClick} />
+        )}
+        {images.length > 0 && (
+          <Button onClick={this.handleNextPage} isLoading={isLoading} />
+        )}
+        {isImageModalOpen && (
+          <Modal src={modalImageSrc} onClose={this.handleCloseImageModal} />
+        )}
       </div>
     );
   }

@@ -19,57 +19,57 @@ class App extends Component {
     modalImageSrc: '',
   };
 
-  getImages = (query, page) => {
-    imagesAPI
-      .getImagesByQuery(query, page)
-      .then(data => {
-        if (data.hits.length < 0) {
-          return;
-        }
-        this.setState(prevState => {
-          return {
-            images: [...prevState.images, ...data.hits],
-          };
-        });
-      })
-      .catch(error => {
-        throw new Error(error);
-      })
-      .finally(() => {
-        this.setState({ isLoading: false });
+  componentDidUpdate(prevProps, prevState) {
+    const { page, query } = this.state;
 
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: 'smooth',
-        });
-      });
+    if (prevState.page !== page || prevState.query !== query) {
+      this.getImages(query, page);
+    }
+  }
+
+  getImages = async (query, page) => {
+    const newImages = await imagesAPI.getImagesByQuery(query, page);
+
+    if (
+      newImages.hits.length < 0 ||
+      newImages.total === this.state.images.length
+    ) {
+      this.setState({ isLoading: false });
+      return;
+    }
+
+    this.setState(prevState => {
+      return {
+        images: [...prevState.images, ...newImages.hits],
+      };
+    });
+
+    this.setState({ isLoading: false });
+
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
   };
 
-  handleGetImages = async query => {
-    await this.setState({
+  handleGetImages = query => {
+    this.setState({
       images: [],
       page: 1,
       query,
       isLoading: true,
     });
-
-    const { page } = this.state;
-
-    this.getImages(query, page);
   };
 
-  handleNextPage = async e => {
+  handleNextPage = e => {
     e.preventDefault();
-    await this.setState(prevState => {
+
+    this.setState(prevState => {
       return {
         page: prevState.page + 1,
         isLoading: true,
       };
     });
-
-    const { query, page } = this.state;
-
-    this.getImages(query, page);
   };
 
   handleImageClick = src => {

@@ -25,6 +25,8 @@ export default class Searchbar extends Component {
     }
     const { onGetImages } = this.props;
     onGetImages(query.toLowerCase());
+
+    this.setState({ query: '' });
   };
 
   render() {
